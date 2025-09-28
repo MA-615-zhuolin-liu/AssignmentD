@@ -3512,7 +3512,7 @@ vertical-align: -.125em;
 <span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="a" class="level4">
-<h4 class="anchored" data-anchor-id="a">a</h4>
+<h4 class="anchored" data-anchor-id="a">A</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -3531,7 +3531,7 @@ vertical-align: -.125em;
 <p>Answer: I thought it would group y. Indeed the output looks identical to df, but with a “Groups: y” message. It doesn’t aggregate or rearrange anything.</p>
 </section>
 <section id="b" class="level4">
-<h4 class="anchored" data-anchor-id="b">b</h4>
+<h4 class="anchored" data-anchor-id="b">B</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -3549,7 +3549,7 @@ vertical-align: -.125em;
 <p>Answer:I thought it would reorder y alphabetically. The output is different from group_by(), which reorders the rows. So arrange() actually changes the order of the rows.</p>
 </section>
 <section id="c" class="level4">
-<h4 class="anchored" data-anchor-id="c">c</h4>
+<h4 class="anchored" data-anchor-id="c">C</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(y) <span class="sc">|&gt;</span></span>
@@ -3565,7 +3565,7 @@ vertical-align: -.125em;
 <p>Answer:I thought it would group by y, then calculate the mean y within each y using x. So the output: y = “a”, mean_x = mean(1,3,4) = 2.67, y = “b”, mean_x = mean(2,5) = 3.5.This means that for each group of y, the mean of x is calculated.</p>
 </section>
 <section id="d" class="level4">
-<h4 class="anchored" data-anchor-id="d">d</h4>
+<h4 class="anchored" data-anchor-id="d">D</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
 <span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(y, z) <span class="sc">|&gt;</span></span>
@@ -3587,7 +3587,7 @@ argument.</code></pre>
 <p>Answer: I thought it would group by y and z. In fact, it groups combinations of (y,z), such as (a,K), (a,L), (b,K), (b,L). And after aggregation, the result is still grouped by y.</p>
 </section>
 <section id="e" class="level4">
-<h4 class="anchored" data-anchor-id="e">e</h4>
+<h4 class="anchored" data-anchor-id="e">E</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(y, z) <span class="sc">|&gt;</span></span>
@@ -3604,7 +3604,7 @@ argument.</code></pre>
 <p>Answer:I thought it would be the same as the numerical result in (d). In fact, it is the same as the numerical result in (d), but the grouping is completely dropped, so .groups = “drop” forces the grouping to be removed.</p>
 </section>
 <section id="f" class="level4">
-<h4 class="anchored" data-anchor-id="f">f</h4>
+<h4 class="anchored" data-anchor-id="f">F</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span></span>
 <span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(y, z) <span class="sc">|&gt;</span></span>
