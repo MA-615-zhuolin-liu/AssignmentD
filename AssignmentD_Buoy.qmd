@@ -1,0 +1,123 @@
+---
+title: "AssignmentD_Buoy"
+author: "Zhuolin Liu"
+format: html
+editor: visual
+---
+
+## Install the Packages
+```{r, warning = FALSE, message=FALSE}
+library(data.table)
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+library(zoo)
+library(tibble)
+library(readr)
+```
+
+## Data Reading and Cleaning
+```{r}
+#From Professor's data cleaning qmd
+file_root <- "https://www.ndbc.noaa.gov/view_text_file.php?filename=44013h"
+tail <- ".txt.gz&dir=data/historical/stdmet/"
+
+load_buoy_data <- function(year) {
+  path <- paste0(file_root, year, tail)
+
+  header <- scan(path, what = 'character', nlines = 1)
+  num_columns <- length(header)  
+
+  if (num_columns == 16) {
+    buoy <- read.table(path, fill = TRUE, header = TRUE, sep = "")
+    buoy <- add_column(buoy, mm = NA, .after = "hh")
+    buoy <- add_column(buoy, TIDE = NA, .after = "VIS")
+
+  } else if (num_columns == 17) {
+    buoy <- read.table(path, fill = TRUE, header = TRUE, sep = "")
+    buoy <- add_column(buoy, TIDE = NA, .after = "VIS")
+
+  } else {
+    buoy <- fread(path, header = FALSE, skip = 1, fill = TRUE)
+    setnames(buoy, header)
+  }
+
+  return(buoy)
+}
+all_data <- lapply(1985:2024, load_buoy_data)
+combined_data <- rbindlist(all_data, fill = TRUE)
+```
+### Questions
+1.  Try to remember why 2007 is the split year
+
+Answer: First, I'd like to explain why 2007 is used. I suspect this is because 2007 is the split year and because the NOAA buoy data format changed around that time. Before 2007, historical files typically had 16 or 17 columns, resulting in a different structure. After 2007, the file format was standardized. Therefore, data from before and after 2007 require different functions when reading into R.
+
+2.  Why are using different functions to read data prior and post 2007?
+
+Answer: We need different functions to read data before and after 2007 because the files have inconsistent structures. For older files, read.table() works, but sometimes you need to add missing columns manually. For newer files, fread() is more reliable because it can handle the new format more efficiently. Using the appropriate function helps us ensure that the data is read correctly, regardless of the year.
+
+3.  What are some new function you got to know from following code? what do these functions do?
+
+Answer: I learned that scan() can read a small portion of a file (here is the header) to check column names. add_column() can add a new column at a specified position in a data frame. fread() is a fast function for reading large data files from data.table. setnames() can rename columns of a data frame. lapply() can apply a function to each element of a vector. rbindlist() can efficiently combine a list of data frames into a single large data frame.
+
+
+
+## Cleaning and Organizing the data
+We start by merging all different version of `Year` column. We do same with other columns which are same but having data for certain set of years. We remove the remaining columns after merging them.
+
+Creating datetime column using `lubridate()`
+
+```{r}
+#From Professor's data cleaning qmd
+combined_data <- combined_data %>%
+  mutate(
+    YY = as.character(YY),
+    `#YY` = as.character(`#YY`),
+    YYYY = as.character(YYYY)
+  )
+
+# Combine year columns safely using coalesce
+combined_data <- combined_data %>%
+  mutate(YYYY = coalesce(YYYY, `#YY`, YY))
+combined_data <- combined_data %>%
+  mutate(BAR = coalesce(as.numeric(BAR), as.numeric(PRES)),  # Convert BAR and PRES to numeric
+    WD = coalesce(as.numeric(WD), as.numeric(WDIR)))
+
+combined_data <- combined_data %>%
+  select(-TIDE, -TIDE.1, -mm,- WDIR, -PRES,-`#YY`,-YY)
+
+combined_data$datetime <- ymd_h(paste(combined_data$YYYY, combined_data$MM, combined_data$DD, combined_data$hh, sep = "-"))
+
+combined_data <- combined_data %>%
+  mutate(across(everything(), 
+                ~ na_if(as.numeric(as.character(.)), 99) %>%
+                na_if(999) %>%
+                na_if(9999)))
+
+#summary(combined_data)
+#str(combined_data)
+#str(combined_data$datetime)
+if (!inherits(combined_data$datetime, "POSIXct")) {
+  combined_data$datetime <- ymd_h(paste(combined_data$YYYY, combined_data$MM, combined_data$DD, combined_data$hh, sep = "-"))
+}
+```
+## Part of analysis question,plot and explain my finding
+The question I want to ask is“ Is there a relationship between air temperature (ATMP) and water temperature (WTMP)?”
+Instead of looking at yearly averages like in class examples, I chose to directly compare air temperature and water temperature to see whether they are correlated.
+```{r}
+library(ggplot2)
+
+ggplot(combined_data, aes(x = WTMP, y = ATMP)) +
+  geom_point(alpha = 0.3,color = "blue") +
+  geom_smooth(method = "lm", se = TRUE,color = "red") +
+  labs(
+    title = "Relationship Between Air Temperature and Water Temperature",
+    x = "Water Temperature (°C)",
+    y = "Air Temperature (°C)"
+  ) +
+  theme_minimal()
+```
+Explain: From the plot, we see that air temperature and water temperatures follow similar patterns. They are positively correlated, which when the air gets warmer, the water also gets warmer. This strong relationship makes sense since the same seasonal and climatic conditions influence both air temperature and water temperature.
+
+
+
