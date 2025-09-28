@@ -1,0 +1,182 @@
+---
+title: "AssignmentD_R4DS_Exercise"
+author: "Zhuolin Liu"
+format: 
+   html:
+      embed-resources: true
+editor: visual
+
+---
+
+# Part A
+## Chapter 3.2.5
+```{r}
+library(tidyverse)
+library(dplyr)
+library(nycflights13)
+```
+
+### Question 1
+#### 1.1
+```{r}
+flights |>
+  filter(arr_delay >= 120)
+```
+#### 1.2
+```{r}
+flights |>
+  filter(dest %in% c("IAH","HOU"))
+```
+
+#### 1.3
+```{r}
+flights|>
+  filter(carrier %in% c("UA","AA","DL"))
+```
+
+#### 1.4
+```{r}
+flights|>
+  filter(month %in% 7:9)
+```
+
+#### 1.5
+```{r}
+flights|>
+  filter(arr_delay > 120, dep_delay <= 0)
+```
+
+#### 1.6
+```{r}
+flights|>
+  filter(dep_delay >= 60, dep_delay - arr_delay > 30)
+```
+
+### Question 4
+```{r}
+flights |>
+  distinct(year, month, day) |>
+  summarise(days_have_flights = n()) |>
+  mutate(everyday_covered = days_have_flights == 365)
+```
+
+### Question 5
+```{r}
+flights |>
+  filter(distance == max(distance, na.rm = TRUE))
+flights |>
+  filter(distance == min(distance, na.rm = TRUE))
+```
+
+# Part B
+## Chapter 3.3.5
+### Question 1
+```{r}
+flights |>
+  select(dep_time, sched_dep_time, dep_delay) |>
+  head()
+```
+Answer:By observing, we can see that dep_time and sched_dep_time are the actual and scheduled departure times, and dep_delay is the difference between them. From the results, we can see that if dep_time > sched_dep_time, then dep_delay is a positive number. If dep_time < sched_dep_time, then dep_delay is a negative number. Therefore, dep_delay = dep_time − sched_dep_time.
+
+### Question 4
+```{r}
+variables <- c("year", "month", "day", "dep_delay", "arr_delay")
+```
+Answer: any_of() selects the variable names in the vector that are present in the data frame. If the columns exist, they are selected; otherwise, they are ignored. It’s helpful when we work with dataset which some columns may be missing, and we want to avoid selection errors.
+# Part C
+## Chapter 3.5.7
+### Question 1
+```{r}
+flights |>
+  group_by(carrier) |>
+  summarise(avg_delay = mean(arr_delay, na.rm = TRUE)) |>
+  arrange(desc(avg_delay))
+```
+Answer:The carrier with the worst average delays can be identified, but it’s hard to tell if the cause is the airline itself or the airports it mainly operates at.
+```{r}
+#gpt answer of check the effects of bad airports vs. bad carriers
+flights |>
+  summarize(
+    avg_arr_delay = mean(arr_delay, na.rm = TRUE),
+    n = n(),
+    .by = c(carrier, dest)
+  ) |>
+  arrange(desc(avg_arr_delay))
+```
+
+### Question 2
+```{r}
+flights |>
+  group_by(dest) |>
+  slice_max(dep_delay, n = 1, with_ties = FALSE) |>
+  select(dest, year, month, day, carrier, flight, dep_delay)
+```
+
+### Question 4
+```{r}
+flights |> 
+  slice_min(dep_delay, n = 10)
+flights |> 
+  slice_min(dep_delay, n = -10)
+```
+Answer: I found that n is the number of rows that need to be retained, and a negative n will delete that many rows from the result.
+### Question 6
+```{r}
+df <- tibble(
+  x = 1:5,
+  y = c("a", "b", "a", "a", "b"),
+  z = c("K", "K", "L", "L", "K")
+)
+```
+
+#### a.
+```{r}
+df |>
+  group_by(y)
+```
+Answer: I thought it would group y.
+Indeed the output looks identical to df, but with a "Groups: y" message. It doesn't aggregate or rearrange anything.
+#### b.
+```{r}
+df |>
+  arrange(y)
+```
+Answer:I thought it would reorder y alphabetically.
+The output is different from group_by(), which reorders the rows. So arrange() actually changes the order of the rows.
+#### c.
+```{r}
+df |>
+  group_by(y) |>
+  summarize(mean_x = mean(x))
+```
+Answer:I thought it would group by y, then calculate the mean y within each y using x.
+So the output: y = "a", mean_x = mean(1,3,4) = 2.67, y = "b", mean_x = mean(2,5) = 3.5.This means that for each group of y, the mean of x is calculated.
+#### d.
+```{r}
+df |>
+  group_by(y, z) |>
+  summarize(mean_x = mean(x))
+```
+Answer: I thought it would group by y and z.
+In fact, it groups combinations of (y,z), such as (a,K), (a,L), (b,K), (b,L). And after aggregation, the result is still grouped by y.
+#### e.
+```{r}
+df |>
+  group_by(y, z) |>
+  summarize(mean_x = mean(x), .groups = "drop")
+```
+Answer:I thought it would be the same as the numerical result in (d).
+In fact, it is the same as the numerical result in (d), but the grouping is completely dropped, so .groups = "drop" forces the grouping to be removed.
+#### f.
+```{r}
+df |>
+  group_by(y, z) |>
+  summarize(mean_x = mean(x))
+
+df |>
+  group_by(y, z) |>
+  mutate(mean_x = mean(x))
+```
+Answer: I thought the first pipeline would collapse the data into one row per group, showing only the mean.
+In fact, the second pipeline retains all the original rows but adds a new column with the group mean. So, mutate() retains all the rows and adds a new column with mean_x, repeating the mean for each row in the group.
+
