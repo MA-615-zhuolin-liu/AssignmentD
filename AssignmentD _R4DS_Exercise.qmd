@@ -128,7 +128,6 @@ df <- tibble(
   z = c("K", "K", "L", "L", "K")
 )
 ```
-
 #### a
 ```{r}
 df |>
@@ -172,7 +171,6 @@ df |>
 ```
 Answer:I thought it would be the same as the numerical result in (d).
 In fact, it is the same as the numerical result in (d), but the grouping is completely dropped, so .groups = "drop" forces the grouping to be removed.
-
 
 #### f
 ```{r}
