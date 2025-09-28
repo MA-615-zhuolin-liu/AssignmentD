@@ -1,7 +1,9 @@
 ---
 title: "AssignmentD_Buoy"
 author: "Zhuolin Liu"
-format: html
+format: 
+   html:
+      embed-resources: true
 editor: visual
 ---
 
